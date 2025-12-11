@@ -1,0 +1,21 @@
+{
+  "name": "meeting-summarizer",
+  "version": "0.1.0",
+  "description": "Chrome extension to summarize meetings and web pages",
+  "type": "module",
+  "scripts": {
+    "build:pages": "vite build",
+    "build:content": "esbuild src/content.ts --bundle --outfile=dist/content.js --format=iife --target=chrome100",
+    "build:background": "esbuild src/background.ts --bundle --outfile=dist/background.js --format=esm --target=chrome100",
+    "build:fixhtml": "mv dist/src/*.html dist/ && rmdir dist/src 2>/dev/null || true && sed -i 's|\\.\\./|./|g' dist/popup.html dist/offscreen.html",
+    "build": "npm run build:pages && npm run build:content && npm run build:background && npm run build:fixhtml",
+    "dev": "npm run build",
+    "clean": "rm -rf dist"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.0.268",
+    "esbuild": "^0.20.0",
+    "typescript": "^5.3.3",
+    "vite": "^5.0.12"
+  }
+}

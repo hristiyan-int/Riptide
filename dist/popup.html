@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meeting Summarizer</title>
+  <script type="module" crossorigin src="./popup.js"></script>
+  <link rel="modulepreload" crossorigin href="./chunks/modulepreload-polyfill.js">
+  <link rel="stylesheet" crossorigin href="./popup.css">
+</head>
+<body>
+  <div id="app">
+    <!-- Header -->
+    <header class="header">
+      <h1>Meeting Summarizer</h1>
+      <nav class="tabs">
+        <button class="tab active" data-tab="main">Summarize</button>
+        <button class="tab" data-tab="history">History</button>
+        <button class="tab" data-tab="settings">Settings</button>
+      </nav>
+    </header>
+
+    <!-- Consent Modal -->
+    <div id="consent-modal" class="modal hidden">
+      <div class="modal-content">
+        <h2>Before we begin</h2>
+        <p>This extension will:</p>
+        <ul>
+          <li>Extract text from web pages you choose to summarize</li>
+          <li>Capture audio from browser tabs (with your permission)</li>
+          <li>Send content to AI services for summarization</li>
+        </ul>
+        <p><strong>Important:</strong> If recording meetings, ensure all participants consent to being recorded.</p>
+        <div class="modal-actions">
+          <button id="consent-decline" class="btn btn-secondary">Decline</button>
+          <button id="consent-accept" class="btn btn-primary">I Understand & Accept</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Tab -->
+    <div id="tab-main" class="tab-content active">
+      <!-- API Key Warning -->
+      <div id="api-key-warning" class="warning hidden">
+        <p>Please configure your API key in Settings to use this extension.</p>
+        <button id="go-to-settings" class="btn btn-secondary btn-sm">Open Settings</button>
+      </div>
+
+      <!-- Action Buttons -->
+      <div id="action-buttons" class="actions">
+        <button id="summarize-page" class="btn btn-primary btn-large">
+          <span class="icon">📄</span>
+          Summarize This Page
+        </button>
+        <button id="start-recording" class="btn btn-secondary btn-large">
+          <span class="icon">🎙️</span>
+          Record Meeting
+        </button>
+      </div>
+
+      <!-- Recording Controls (hidden by default) -->
+      <div id="recording-controls" class="recording-controls hidden">
+        <div class="recording-indicator">
+          <span class="recording-dot"></span>
+          <span id="recording-time">00:00</span>
+        </div>
+        <button id="stop-recording" class="btn btn-danger">
+          Stop & Summarize
+        </button>
+      </div>
+
+      <!-- Loading State -->
+      <div id="loading" class="loading hidden">
+        <div class="spinner"></div>
+        <p id="loading-text">Processing...</p>
+      </div>
+
+      <!-- Error Display -->
+      <div id="error" class="error hidden">
+        <p id="error-text"></p>
+        <button id="error-dismiss" class="btn btn-secondary btn-sm">Dismiss</button>
+      </div>
+
+      <!-- Summary Result -->
+      <div id="summary-result" class="summary-result hidden">
+        <div class="summary-header">
+          <h3 id="summary-title">Summary</h3>
+          <div class="summary-actions">
+            <button id="copy-summary" class="btn btn-sm" title="Copy to clipboard">Copy</button>
+            <button id="download-summary" class="btn btn-sm" title="Download">Download</button>
+            <button id="close-summary" class="btn btn-sm" title="Close">Close</button>
+          </div>
+        </div>
+
+        <div class="summary-section">
+          <h4>Summary</h4>
+          <p id="summary-text"></p>
+        </div>
+
+        <div class="summary-section" id="key-points-section">
+          <h4>Key Points</h4>
+          <ul id="key-points-list"></ul>
+        </div>
+
+        <div class="summary-section" id="action-items-section">
+          <h4>Action Items</h4>
+          <ul id="action-items-list"></ul>
+        </div>
+
+        <div class="summary-section" id="decisions-section">
+          <h4>Decisions</h4>
+          <ul id="decisions-list"></ul>
+        </div>
+
+        <div class="summary-section" id="transcript-section">
+          <h4>Transcript</h4>
+          <details>
+            <summary>View full transcript</summary>
+            <p id="transcript-text"></p>
+          </details>
+        </div>
+      </div>
+    </div>
+
+    <!-- History Tab -->
+    <div id="tab-history" class="tab-content hidden">
+      <div id="history-empty" class="empty-state">
+        <p>No summaries yet. Start by summarizing a page or recording a meeting!</p>
+      </div>
+      <div id="history-list" class="history-list"></div>
+      <div id="history-actions" class="history-actions hidden">
+        <button id="clear-history" class="btn btn-danger btn-sm">Clear All History</button>
+      </div>
+    </div>
+
+    <!-- Settings Tab -->
+    <div id="tab-settings" class="tab-content hidden">
+      <form id="settings-form">
+        <div class="form-group">
+          <label for="api-provider">AI Provider</label>
+          <select id="api-provider" name="apiProvider">
+            <option value="openai">OpenAI (GPT-4o-mini + Whisper)</option>
+            <option value="anthropic">Anthropic (Claude) - Text only</option>
+          </select>
+          <p class="help-text">Note: Audio transcription always uses OpenAI Whisper</p>
+        </div>
+
+        <div class="form-group">
+          <label for="api-key">API Key</label>
+          <input type="password" id="api-key" name="apiKey" placeholder="Enter your API key">
+          <p class="help-text">
+            Get your key from
+            <a href="https://platform.openai.com/api-keys" target="_blank">OpenAI</a> or
+            <a href="https://console.anthropic.com/" target="_blank">Anthropic</a>
+          </p>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Save Settings</button>
+        </div>
+
+        <div id="settings-saved" class="success-message hidden">
+          Settings saved successfully!
+        </div>
+      </form>
+    </div>
+  </div>
+
+</body>
+</html>

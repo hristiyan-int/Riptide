@@ -52,6 +52,10 @@
     return text.replace(/\s+/g, " ").replace(/\n{3,}/g, "\n\n").trim().substring(0, 5e4);
   }
   chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+    if (message.type === "PING") {
+      sendResponse({ success: true });
+      return true;
+    }
     if (message.type === "GET_PAGE_CONTENT") {
       try {
         const content = extractPageContent();

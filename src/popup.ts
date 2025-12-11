@@ -170,6 +170,20 @@ function updateApiKeyWarning() {
   elements.actionButtons.classList.toggle('hidden', !hasKey);
 }
 
+// Inject content script if not already loaded
+async function ensureContentScript(tabId: number): Promise<void> {
+  try {
+    // Try to ping the content script
+    await chrome.tabs.sendMessage(tabId, { type: 'PING' });
+  } catch {
+    // Content script not loaded, inject it
+    await chrome.scripting.executeScript({
+      target: { tabId },
+      files: ['content.js'],
+    });
+  }
+}
+
 // Page Summarization
 async function handleSummarizePage() {
   try {
@@ -182,6 +196,9 @@ async function handleSummarizePage() {
     if (!tab.id) {
       throw new Error('No active tab found');
     }
+
+    // Ensure content script is loaded
+    await ensureContentScript(tab.id);
 
     // Send message to content script to get page content
     const response = await chrome.tabs.sendMessage(tab.id, { type: 'GET_PAGE_CONTENT' });

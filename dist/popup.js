@@ -281,6 +281,16 @@ function updateApiKeyWarning() {
   elements.apiKeyWarning.classList.toggle("hidden", hasKey);
   elements.actionButtons.classList.toggle("hidden", !hasKey);
 }
+async function ensureContentScript(tabId) {
+  try {
+    await chrome.tabs.sendMessage(tabId, { type: "PING" });
+  } catch {
+    await chrome.scripting.executeScript({
+      target: { tabId },
+      files: ["content.js"]
+    });
+  }
+}
 async function handleSummarizePage() {
   try {
     showLoading("Extracting page content...");
@@ -290,6 +300,7 @@ async function handleSummarizePage() {
     if (!tab.id) {
       throw new Error("No active tab found");
     }
+    await ensureContentScript(tab.id);
     const response = await chrome.tabs.sendMessage(tab.id, { type: "GET_PAGE_CONTENT" });
     if (!response.success) {
       throw new Error(response.error || "Failed to extract page content");

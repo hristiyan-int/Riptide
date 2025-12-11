@@ -75,6 +75,11 @@ function cleanText(text: string): string {
 
 // Listen for messages from the popup
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+  if (message.type === 'PING') {
+    sendResponse({ success: true });
+    return true;
+  }
+
   if (message.type === 'GET_PAGE_CONTENT') {
     try {
       const content = extractPageContent();

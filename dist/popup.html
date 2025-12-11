@@ -12,7 +12,10 @@
   <div id="app">
     <!-- Header -->
     <header class="header">
-      <h1>Meeting Summarizer</h1>
+      <div class="header-title">
+        <img src="./logo.png" alt="Logo" class="logo">
+        <h1>Meeting Summarizer</h1>
+      </div>
       <nav class="tabs">
         <button class="tab active" data-tab="main">Summarize</button>
         <button class="tab" data-tab="history">History</button>
@@ -49,11 +52,9 @@
       <!-- Action Buttons -->
       <div id="action-buttons" class="actions">
         <button id="summarize-page" class="btn btn-primary btn-large">
-          <span class="icon">📄</span>
           Summarize This Page
         </button>
         <button id="start-recording" class="btn btn-secondary btn-large">
-          <span class="icon">🎙️</span>
           Record Meeting
         </button>
       </div>
